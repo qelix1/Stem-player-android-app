@@ -41,3 +41,28 @@ def job_exists(job_id):
     # Проверяем наличие конкретного файла
     meta_file = dir_path / "meta.json"
     return meta_file.exists()
+
+class FileTooLargeError(Exception):
+    """Кастомное исключение для превышения размера файла."""
+    pass
+
+def save_upload_file_stream(file, destination: pathlib.Path, max_bytes: int, chunk_size: int = 1024 * 1024):
+    """
+    Потоково сохраняет UploadFile на диск.
+    Возвращает реальный размер сохраненного файла.
+    """
+    total_size = 0
+    try:
+        with open(destination, "wb") as buffer:
+            # Читаем чанками
+            while chunk := file.file.read(chunk_size):
+                total_size += len(chunk)
+                if total_size > max_bytes:
+                    raise FileTooLargeError(f"Превышен лимит в {max_bytes} байт")
+                buffer.write(chunk)
+        return total_size
+    except Exception as e:
+        # При ЛЮБОЙ ошибке (лимит, диск переполнен) удаляем недописанный файл
+        if destination.exists():
+            destination.unlink()
+        raise e # Пробрасываем ошибку наверх

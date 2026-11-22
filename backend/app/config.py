@@ -10,5 +10,7 @@ class Settings(BaseSettings):
     demucs_model: str = "htdemucs"
     demucs_device: str = "cpu"     # на машине без GPU в .env поставьте cpu
     # TODO: allowed_extensions, max_duration_sec
+    allowed_extensions: list[str] = [".mp3", ".wav", ".flac", ".m4a"]
+    max_duration_sec: int = 600
 
 settings = Settings()
