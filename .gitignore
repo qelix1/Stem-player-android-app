@@ -5,3 +5,6 @@
 
 scratch/
 separated/
+
+__pycache__/
+*.pyc
