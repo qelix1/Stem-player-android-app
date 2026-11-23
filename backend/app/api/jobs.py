@@ -2,8 +2,8 @@ import json
 import uuid
 from datetime import datetime
 from fastapi import APIRouter, UploadFile, File, HTTPException, status
-from storage import job_dir, input_path, save_upload_file_stream, FileTooLargeError
-from celery.worker.tasks import separate
+from app.storage import job_dir, input_path, save_upload_file_stream, FileTooLargeError
+from app.worker.tasks import separate
 router = APIRouter(prefix="/api/v1/jobs", tags=["jobs"])
 
 MAX_UPLOAD_MB = 50
@@ -25,7 +25,7 @@ async def create_job(file: UploadFile = File(...)):
 
     # TODO 3: Потоковое сохранение
     try:
-        save_upload_file_stream(file.file, file_location, MAX_BYTES)
+        save_upload_file_stream(file, file_location, MAX_BYTES)
     except FileTooLargeError:
         raise HTTPException(status_code=413, detail=f"Файл больше {MAX_UPLOAD_MB} МБ")
     except Exception as e:
